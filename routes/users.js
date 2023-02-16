@@ -27,9 +27,11 @@ router.get('/', function(req, res, next) {
       throw err;
     }
     if(!result.length){
+      console.log(err);
       res.send("There is no users.");
     } else {
-      res.send(res);
+      console.log(result);
+      res.send(result);
     }
   })
 });
