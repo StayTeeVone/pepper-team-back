@@ -96,6 +96,7 @@ router.put("/:id", (req, res) => {
     let phone = req.body.phone;
     var data = [name, email, phone, pass, id];
     
+    
     let insertSQL = `
      UPDATE user SET name=?, email=?, phone=?, password=? where id_user=?
     `;
@@ -105,10 +106,9 @@ router.put("/:id", (req, res) => {
         console.error(err);
       }
       res.setHeader('Content-Type', 'application/json');
-      res.send({data: `User with ${id} was updated to email: ${email}, name: ${name}, phone: ${phone}`});
+      res.send({email, name, phone});
     })
   })
 })
-
 
 module.exports = router;
