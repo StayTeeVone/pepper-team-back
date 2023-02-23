@@ -78,6 +78,37 @@ router.post('/', (req, res) => {
     }
 
   })
+});
+
+/* UPDATE existing users by ID. */
+router.put("/:id", (req, res) => {
+
+  let password = req.body.password;
+  let id = req.params.id;
+
+  bcrypt.hash(password, salt, (err, hash) => {
+    if(err){
+      return next(err);
+    } 
+    let pass = hash;
+    let email = req.body.email;
+    let name = req.body.name;
+    let phone = req.body.phone;
+    var data = [name, email, phone, pass, id];
+    
+    
+    let insertSQL = `
+     UPDATE user SET name=?, email=?, phone=?, password=? where id_user=?
+    `;
+
+    db.query(insertSQL, data, (err, result) => {
+      if(err){
+        console.error(err);
+      }
+      res.setHeader('Content-Type', 'application/json');
+      res.send({email, name, phone});
+    })
+  })
 })
 
 module.exports = router;
