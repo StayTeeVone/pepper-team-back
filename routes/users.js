@@ -5,6 +5,19 @@ const passport = require('../config/passport');
 const bcrypt = require('bcryptjs');
 var salt = bcrypt.genSaltSync();
 
+var multer=require('multer');
+var path = require('path');
+var storage = multer.diskStorage({
+  destination: (req, file, callback)=> {
+    callback(null, './public/images/uploads');
+  },
+filename:(req, file, callback)=>{
+  callback(null, Date.now()+ '-' +file.originalname);
+}
+});
+
+var upload = multer({storage: storage}).single('file');
+
 router.use(function(req, res, next) {
   //res.header("Access-Control-Allow-Origin", "http://pepper-team.herokuapp.com");
   res.header("Access-Control-Allow-Origin", "*");
@@ -12,6 +25,7 @@ router.use(function(req, res, next) {
     "Access-Control-Allow-Headers",
     "Origin, X-Requested-With, Content-Type, Accept"
   );
+  res.header("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE");
   next();
 });
 
@@ -59,10 +73,11 @@ router.post('/', (req, res) => {
         let pass = hash;
         let name = req.body.name;
         let phone = req.body.phone;
-        var data = [name, email, phone, pass];
+        let photo = 'default.jpg';
+        var data = [name, email, phone, pass, photo];
         
         let insertSQL = `
-          INSERT INTO user(name, email, phone, password) VALUES(?)
+          INSERT INTO user(name, email, phone, password, photo) VALUES(?)
         `;
 
         db.query(insertSQL, [data], (err, result) => {
@@ -111,4 +126,38 @@ router.put("/:id", (req, res) => {
   })
 })
 
+router.get('/get-photo/:id', function(req, res, next) {
+let id = req.params.id;
+let sql = 'select photo from user where id_user = ?'
+db.query(sql, [id], (err, result) => {
+  if(err){
+    throw err 
+  }
+  if(!result.length){
+    res.send('no photo');
+  }
+  else{
+  res.sendFile(path.resolve(__dirname, '../public/images/uploads/' + result[0].photo))  
+  }
+});
+});
+
+router.post('/set-photo/:id', (req, res) => {
+upload(req, res, (err)=> {
+ if(err instanceof multer.MulterError){
+  console.error('multer error');
+}else if(err){
+  throw err
+}
+let id = req.params.id;
+let file = req.file.filename;
+let data = [file, id];
+let updateSql = `UPDATE user set photo=? where id_user=?`;
+db.query(updateSql, data, (err, result)=>{
+if(err){
+  throw err;
+}
+});
+})
+});
 module.exports = router;
