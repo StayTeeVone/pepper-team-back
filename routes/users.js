@@ -11,9 +11,9 @@ var storage = multer.diskStorage({
   destination: (req, file, callback)=> {
     callback(null, './public/images/uploads');
   },
-filename:(req, file, callback)=>{
-  callback(null, Date.now()+ '-' +file.originalname);
-}
+  filename:(req, file, callback)=>{
+    callback(null, Date.now()+ '-' +file.originalname);
+  }
 });
 
 var upload = multer({storage: storage}).single('file');
@@ -127,37 +127,44 @@ router.put("/:id", (req, res) => {
 })
 
 router.get('/get-photo/:id', function(req, res, next) {
-let id = req.params.id;
-let sql = 'select photo from user where id_user = ?'
-db.query(sql, [id], (err, result) => {
-  if(err){
-    throw err 
-  }
-  if(!result.length){
-    res.send('no photo');
-  }
-  else{
-  res.sendFile(path.resolve(__dirname, '../public/images/uploads/' + result[0].photo))  
-  }
-});
+  let id = req.params.id;
+  let sql = 'select photo from user where id_user = ?'
+
+  db.query(sql, [id], (err, result) => {
+    if(err){
+      throw err 
+    }
+    if(!result.length){
+      res.send('no photo');
+    }
+    else{
+      res.sendFile(path.resolve(__dirname, '../public/images/uploads/' + result[0].photo))  
+    }
+  });
 });
 
 router.post('/set-photo/:id', (req, res) => {
-upload(req, res, (err)=> {
- if(err instanceof multer.MulterError){
-  console.error('multer error');
-}else if(err){
-  throw err
-}
-let id = req.params.id;
-let file = req.file.filename;
-let data = [file, id];
-let updateSql = `UPDATE user set photo=? where id_user=?`;
-db.query(updateSql, data, (err, result)=>{
-if(err){
-  throw err;
-}
+  upload(req, res, (err)=> {
+    if(err instanceof multer.MulterError){
+      console.error('multer error');
+    }
+    else if(err){
+      throw err
+    }
+
+    let id = req.params.id;
+    let file = req.file.filename;
+    let data = [file, id];
+    let updateSql = `UPDATE user set photo=? where id_user=?`;
+
+    db.query(updateSql, data, (err, result)=>{
+      if(err){
+        throw err;
+      }
+    });
+  })
 });
-})
-});
+
+
+
 module.exports = router;
