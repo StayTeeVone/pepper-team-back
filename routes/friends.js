@@ -36,6 +36,27 @@ router.get('/:id', function(req, res, next) {
     })
 });
 
+/* GET users friends. */
+router.get('/', function(req, res, next) {
+
+  const sql = `
+    SELECT *
+    FROM friend_request
+    WHERE status = 1  
+  `
+
+  db.query(sql, (err, result) => {
+    if(err){
+      throw err;
+    }
+    if(!result.length){
+      res.send("There is no friends.");
+    } else {
+      res.send(result);
+    }
+  })
+});
+
 // POST query
 router.post('/', (req, res) => {
     const id_user = req.body.id_user;
