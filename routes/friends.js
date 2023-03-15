@@ -29,7 +29,7 @@ router.get('/:id', function(req, res, next) {
         throw err;
       }
       if(!result.length){
-        res.send("There is no friends.");
+        res.send([]);
       } else {
         res.send(result);
       }
@@ -50,7 +50,7 @@ router.get('/', function(req, res, next) {
       throw err;
     }
     if(!result.length){
-      res.send("There is no friends.");
+      res.send([]);
     } else {
       res.send(result);
     }
@@ -114,6 +114,39 @@ router.put("/", (req, res) => {
         res.setHeader('Content-Type', 'application/json');
         res.send({data: 'You accepted invitation.'});
     })
+})
+
+router.delete("/:id_user/:id_friend", (req, res) => {
+
+  let id_user = req.params.id_user;
+  let id_friend = req.params.id_friend;
+  let data = [id_user, id_friend, id_user, id_friend];
+
+  let selectSQL = `
+    SELECT id_user, id_friend
+    FROM friend_request
+    WHERE (id_user = ? AND id_friend = ?)
+    OR (id_friend = ? AND id_user = ?)
+  `
+  db.query(selectSQL, data, (err, result) => {
+    if(err)
+      throw err;
+    
+    let data = [result[0].id_user, result[0].id_friend];
+
+    let deleteSQL = `
+      DELETE 
+      FROM friend_request
+      WHERE id_user = ? AND id_friend = ?
+    `
+    
+    db.query(deleteSQL, data, (err, rez) => {
+      if (err) throw err;
+
+      res.setHeader("Content-Type", "application/json");
+      res.send({ data: `Request was deleted.`});
+    });
+  }) 
 })
 
 module.exports = router;

@@ -44,8 +44,30 @@ router.get('/', function(req, res, next) {
       console.log(err);
       res.send("There is no users.");
     } else {
-      console.log(result);
       res.send(result);
+    }
+  })
+});
+
+/* GET users listing. */
+router.get('/:id', function(req, res, next) {
+
+  let id = req.params.id;
+
+  const sql = `
+    SELECT *
+    FROM user
+    WHERE id_user = ? 
+  `
+
+  db.query(sql, [id], (err, result) => {
+    if(err){
+      throw err;
+    }
+    if(!result.length){
+      res.send([]);
+    } else {
+      res.send(result[0]);
     }
   })
 });
