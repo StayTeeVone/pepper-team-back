@@ -101,7 +101,6 @@ router.put("/", (req, res) => {
     let id_friend = req.body.id_friend;
     let status = req.body.status;
     const data = [status, id_user, id_friend];
-    console.log(data);
 
     let insertSQL = `
        UPDATE friend_request SET status=? where id_user=? and id_friend = ?

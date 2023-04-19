@@ -61,5 +61,41 @@ router.post('/', (req, res) => {
     }) 
 });
 
+// PUT query
+router.put('/', (req, res) => {
+
+  let id = req.body.id_messages;
+  const message = req.body.message;
+
+  let sql = `
+    UPDATE messages SET message=${message} WHERE id_messages = ${id}
+  `;
+
+  db.query(sql, (err, result) => {
+      if(err){
+          throw err;
+      } console.log(result);
+      res.setHeader('Content-Type', 'application/json');
+      res.send({data: 'Your message was success updated!'})
+  }) 
+});
+
+// delete message by id
+router.delete("/:id", (req, res) => {
+
+  let id = req.params.id;
+
+  let deleteSQL = `
+      DELETE 
+      FROM messages
+      WHERE id_messages = ?
+    `
+
+  db.query(deleteSQL, [id], (err, rez) => {
+    if (err) throw err;
+    res.setHeader("Content-Type", "application/json");
+    res.send({ data: `Messages was deleted.`});
+  }); 
+})
 
 module.exports = router;
