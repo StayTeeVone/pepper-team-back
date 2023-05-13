@@ -66,12 +66,13 @@ router.put('/', (req, res) => {
 
   let id = req.body.id_messages;
   const message = req.body.message;
+  let data = [message, id]
 
   let sql = `
-    UPDATE messages SET message=${message} WHERE id_messages = ${id}
+    UPDATE messages SET message=? WHERE id_messages = ?
   `;
 
-  db.query(sql, (err, result) => {
+  db.query(sql, data, (err, result) => {
       if(err){
           throw err;
       } console.log(result);
